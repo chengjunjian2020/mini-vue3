@@ -67,3 +67,18 @@ it("onStop", () => {
   stop(runner);
   expect(onStop).toBeCalledTimes(1);
 });
+
+it("effect stack", () => {
+  const obj = reactive({ foo: true, bar: true });
+  let temp1;
+  let temp2;
+  effect(() => {
+    console.log("effect1 执行了");
+    temp2 = obj.bar;
+    effect(() => {
+      console.log("effect2 执行了");
+      temp1 = obj.foo;
+    });
+  });
+  obj.bar = false;
+});
