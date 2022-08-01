@@ -1,3 +1,4 @@
+import { isObject } from "../shared";
 import {
   mutableHandler,
   readonlyHandler,
@@ -18,6 +19,10 @@ export function readonly(raw) {
 }
 
 export function shallowReadonly(raw) {
+  if (!isObject(raw)) {
+    console.warn(`target ${raw} mush is a object`);
+    return raw;
+  }
   return new Proxy(raw, shollowReadonlyHandler);
 }
 

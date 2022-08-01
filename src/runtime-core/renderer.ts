@@ -1,6 +1,7 @@
 import { shapeFlags } from "../shared/shapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
+import { fragment, Text } from "./vnode";
 
 export function render(vnode, container) {
   patch(vnode, container);
@@ -12,13 +13,33 @@ export function render(vnode, container) {
  * @param container
  */
 function patch(vnode, container) {
-  if (vnode.shapeFlag & shapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (vnode.shapeFlag & shapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  console.log(vnode.type);
+  switch (vnode.type) {
+    case fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (vnode.shapeFlag & shapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (vnode.shapeFlag & shapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
   }
 }
 
+// 处理Fragment标签
+function processFragment(vnode, container) {
+  mountChildren(vnode, container);
+}
+
+function processText(vnode, container) {
+  const textNode = document.createTextNode(vnode.children);
+  vnode.el = textNode;
+  container.append(textNode);
+}
 /**
  *
  * @param vnode
@@ -58,7 +79,7 @@ function processElement(vnode, container) {
  * @param container
  */
 function mountElement(vnode, container) {
-  const { props, children, type } = vnode;
+  const { props, children, type, shapeFlag } = vnode;
 
   const el: HTMLElement = document.createElement(type);
 
@@ -76,17 +97,16 @@ function mountElement(vnode, container) {
     }
   }
 
-  mountChildren(children, el, vnode);
-
+  if (shapeFlag & shapeFlags.TEXT_CHILDREN) {
+    el.textContent = children;
+  } else if (shapeFlag & shapeFlags.ARRAY_CHILDREN) {
+    console.log();
+    mountChildren(vnode, el);
+  }
   container.append(el);
 }
 
 //处理children
-function mountChildren(children, el: HTMLElement, vnode) {
-  const { shapeFlag } = vnode;
-  if (shapeFlag & shapeFlags.TEXT_CHILDREN) {
-    el.textContent = children;
-  } else if (shapeFlag & shapeFlags.ARRAY_CHILDREN) {
-    children.forEach((child) => patch(child, el));
-  }
+function mountChildren(vnode, el: HTMLElement) {
+  vnode.children.forEach((child) => patch(child, el));
 }

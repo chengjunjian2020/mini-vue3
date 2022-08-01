@@ -1,14 +1,21 @@
 const publicInstanceProperty = {
-  $el: (v) => v.el,
+  $el: (v) => v.vnode.el,
+  $slots: (v) => v.slots,
 };
 
 export const PublicInstanceProxyHandlers = {
   get(instance, key) {
-    const { setupState, vnode } = instance;
-    if (key in setupState) {
+    const { setupState, props } = instance;
+    console.log(key);
+    const hasOwn = (obj, key) => Object.hasOwnProperty.call(obj, key);
+    if (hasOwn(setupState, key)) {
       return setupState[key];
+    } else if (hasOwn(props, key)) {
+      return props[key];
     }
     const getter = publicInstanceProperty[key];
-    getter && getter(vnode);
+    if (getter) {
+      return getter(instance);
+    }
   },
 };

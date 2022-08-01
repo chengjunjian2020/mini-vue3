@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "init": "jest --init",
-    "build": "rollup --config rollup.config.js",
+    "dev": "rollup --config rollup.config.js",
     "watch": "rollup --config rollup.config.js --watch"
   },
   "author": "",

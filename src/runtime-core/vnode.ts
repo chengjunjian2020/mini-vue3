@@ -1,5 +1,6 @@
 import { shapeFlags } from "../shared/shapeFlags";
-
+export const fragment = Symbol("Fragment");
+export const Text = Symbol("Text");
 export function createVnode(type, props?, children?) {
   const vnode = {
     type,
@@ -13,6 +14,12 @@ export function createVnode(type, props?, children?) {
   } else if (Array.isArray(children)) {
     vnode.shapeFlag |= shapeFlags.ARRAY_CHILDREN;
   }
+
+  if (vnode.shapeFlag & shapeFlags.STATEFUL_COMPONENT) {
+    if (typeof children === "object") {
+      vnode.shapeFlag |= shapeFlags.SLOT_CHILDREN;
+    }
+  }
   return vnode;
 }
 
@@ -22,4 +29,8 @@ function getShapeFlag(type) {
   } else {
     return shapeFlags.STATEFUL_COMPONENT;
   }
+}
+
+export function createTextVNode(text: string) {
+  return createVnode(Text, {}, text);
 }
