@@ -3,6 +3,7 @@ import { emit } from "./componentEmit";
 import { initProps } from "./componentProps";
 import { initSlots } from "./componentSlots";
 
+let currentInstance = null;
 /**
  * 创建组件实例
  * @param vnode
@@ -30,10 +31,12 @@ function setupStatefulComponent(instance) {
   const component = instance.type;
   const { emit } = instance;
   const { setup } = component;
+  setCurrentInstance(instance);
   if (setup) {
     const setupResult = setup(shallowReadonly(instance.props), { emit });
     handleSetupResult(instance, setupResult);
   }
+  setCurrentInstance(null);
 }
 
 function handleSetupResult(instance, setupResult) {
@@ -49,4 +52,11 @@ function finishComponentSetup(instance) {
   if (component.render) {
     instance.render = component.render;
   }
+}
+
+export function getCurrentInstance() {
+  return currentInstance;
+}
+function setCurrentInstance(instance) {
+  currentInstance = instance;
 }
