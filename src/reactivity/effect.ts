@@ -3,7 +3,7 @@ interface effectOption {
   scheduler?: Function;
   onStop?: Function;
 }
-const targetMap = new Map();
+const targetMap = new WeakMap();
 let currentEffect;
 let shouldTrack = false;
 export class ReactiveEffect {
@@ -93,6 +93,9 @@ export function trigger(target, key) {
   triggerEffect(dep);
 }
 export function triggerEffect(dep: Set<any>) {
+  if (!dep) {
+    return;
+  }
   for (let effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
