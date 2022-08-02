@@ -8,7 +8,7 @@ let currentInstance = null;
  * 创建组件实例
  * @param vnode
  */
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parentComponent) {
   const component = {
     vnode,
     type: vnode.type,
@@ -16,6 +16,8 @@ export function createComponentInstance(vnode) {
     setupState: {},
     emit: () => {},
     slots: {},
+    provides: parentComponent ? parentComponent.provides : {},
+    parent: parentComponent,
   };
   component.emit = emit.bind(null, component) as any;
   return component;
